@@ -1,0 +1,6 @@
+NASABot.Api/bin/
+NASABot.Api/obj/
+NASABot/.vs/
+NASABot/bin/
+NASABot/obj/
+NASABot/appsettings.Development.json
