@@ -66,10 +66,13 @@ namespace NASABot.Api.Nasa
 
             dataString.AppendLine($" ---- Geomagnetic Storm ----");
 
-            foreach (var item in result)
+            if (result != null)
             {
-                dataString.AppendLine($"- Activity was at: {item.StartTime} ");
-                dataString.AppendLine($"- Link: {item.Link} ");
+                foreach (var item in result)
+                {
+                    dataString.AppendLine($"- Activity was at: {item.StartTime} ");
+                    dataString.AppendLine($"- Link: {item.Link} ");
+                }
             }
 
             return dataString.ToString();
