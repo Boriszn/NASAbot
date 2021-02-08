@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace NASABot.Services 
 {
+    //todo: rename LanguageRecognitionService 
     public class ObservationRecognizer : IRecognizer
     {
         private readonly LuisRecognizer _recognizer;
@@ -18,7 +19,7 @@ namespace NASABot.Services
         public ObservationRecognizer(IOptions<Luis> configuration)
         {
             var luisIsConfigured = !string.IsNullOrEmpty(configuration.Value.LuisAppId) 
-                && !string.IsNullOrEmpty(configuration.Value.LuisAPIKey) 
+                && !string.IsNullOrEmpty(configuration.Value.LuisAPIKey)
                 && !string.IsNullOrEmpty(configuration.Value.LuisAPIHostName);
             if (luisIsConfigured)
             {

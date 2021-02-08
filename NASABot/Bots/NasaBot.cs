@@ -1,8 +1,3 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-//
-// Generated with Bot Builder V4 SDK Template for Visual Studio EchoBot v4.6.2
-
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -22,6 +17,7 @@ namespace NASABot.Bots
         private Donki _donkiApi;
         private IOptions<NasaApi> _config;
         private readonly IOptions<Luis> _luisConfig;
+        private readonly IExternalApiAgregetionService _externalApiAgregetionService;
         private readonly BotState _userState;
         private readonly BotState _conversationState;
 
@@ -29,13 +25,15 @@ namespace NASABot.Bots
             IOptions<NasaApi> config,
             IOptions<Luis> luisConfig, 
             ConversationState conversationState, 
-            UserState userState)
+            UserState userState,
+            IExternalApiAgregetionService externalApiAgregetionService)
         {
             _donkiApi = new Donki();
             _config = config;
             _luisConfig = luisConfig;
             _conversationState = conversationState;
             _userState = userState;
+            _externalApiAgregetionService = externalApiAgregetionService;
         }
 
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
@@ -106,7 +104,7 @@ namespace NASABot.Bots
                     
                     observationParams.ObservationType = input;
 
-                    string observationDataText = await GetObservarionText(_config.Value.ApiKey, observationParams.StartDate, observationParams.EndDate, turnContext, cancellationToken);
+                    string observationDataText = await _externalApiAgregetionService.GetObservarionText(_config.Value.ApiKey, observationParams.StartDate, observationParams.EndDate, turnContext, cancellationToken);
 
                     await turnContext.SendActivityAsync(MessageFactory.Text(observationDataText, observationDataText), cancellationToken);
 
@@ -118,7 +116,7 @@ namespace NASABot.Bots
             }
         }
 
-        //todo: add to ApiMessagesAgregator class
+        //todo: add to ExternalApiAgregetionService class proj
         private async Task<string> GetObservarionText(string apiKey, DateTime startDate, DateTime endDate, ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
             var observationRecognizer = new ObservationRecognizer(_luisConfig);

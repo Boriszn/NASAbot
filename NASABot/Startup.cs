@@ -1,9 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-//
-// Generated with Bot Builder V4 SDK Template for Visual Studio EchoBot v4.6.2
-
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Bot.Builder;
@@ -13,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using NASABot.Bots;
 using NASABot.Configuration;
+using NASABot.Services;
 
 namespace NASABot
 {
@@ -58,6 +54,7 @@ namespace NASABot
 
             // Create the Conversation state.
             services.AddSingleton<ConversationState>();
+            services.AddTransient<IExternalApiAgregetionService, ExternalApiAgregetionService>();
 
         }
 
