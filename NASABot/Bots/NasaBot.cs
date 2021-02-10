@@ -1,8 +1,3 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-//
-// Generated with Bot Builder V4 SDK Template for Visual Studio EchoBot v4.6.2
-
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -22,6 +17,7 @@ namespace NASABot.Bots
         private Donki _donkiApi;
         private IOptions<NasaApi> _config;
         private readonly IOptions<Luis> _luisConfig;
+        private readonly IExternalApiAgregetionService _externalApiAgregetionService;
         private readonly BotState _userState;
         private readonly BotState _conversationState;
 
@@ -29,13 +25,15 @@ namespace NASABot.Bots
             IOptions<NasaApi> config,
             IOptions<Luis> luisConfig, 
             ConversationState conversationState, 
-            UserState userState)
+            UserState userState,
+            IExternalApiAgregetionService externalApiAgregetionService)
         {
             _donkiApi = new Donki();
             _config = config;
             _luisConfig = luisConfig;
             _conversationState = conversationState;
             _userState = userState;
+            _externalApiAgregetionService = externalApiAgregetionService;
         }
 
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
@@ -63,14 +61,14 @@ namespace NASABot.Bots
             ObservationParams observationParams = await observationParamsAccessor.GetAsync(turnContext, () => new ObservationParams(), cancellationToken);
 
             // Start question Process
-            await StartQuestionProcess(flow, observationParams, turnContext, cancellationToken);
+            await StartQuestioningProcess(flow, observationParams, turnContext, cancellationToken);
 
             // Save data changes
             await _conversationState.SaveChangesAsync(turnContext, false, cancellationToken);
             await _userState.SaveChangesAsync(turnContext, false, cancellationToken);
         }
 
-        private async Task StartQuestionProcess(ConversationFlow conversationFlow, ObservationParams observationParams, ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
+        private async Task StartQuestioningProcess(ConversationFlow conversationFlow, ObservationParams observationParams, ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
             string input = turnContext.Activity.Text?.Trim();
             string message = string.Empty;
@@ -106,7 +104,7 @@ namespace NASABot.Bots
                     
                     observationParams.ObservationType = input;
 
-                    string observationDataText = await GetObservarionText(_config.Value.ApiKey, observationParams.StartDate, observationParams.EndDate, turnContext, cancellationToken);
+                    string observationDataText = await _externalApiAgregetionService.GetObservarionText(_config.Value.ApiKey, observationParams.StartDate, observationParams.EndDate, turnContext, cancellationToken);
 
                     await turnContext.SendActivityAsync(MessageFactory.Text(observationDataText, observationDataText), cancellationToken);
 
@@ -116,37 +114,6 @@ namespace NASABot.Bots
                     conversationFlow.Question = Question.ObservationTypeQuestion;
                     break;
             }
-        }
-
-        //todo: add to ApiMessagesAgregator class
-        private async Task<string> GetObservarionText(string apiKey, DateTime startDate, DateTime endDate, ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
-        {
-            var observationRecognizer = new ObservationRecognizer(_luisConfig);
-
-            //TODO: Remove this after tests
-            var data = await observationRecognizer.RecognizeAsync(turnContext, cancellationToken);
-
-            var luisObservationTypeResult = await observationRecognizer.RecognizeAsync<ObservationType>(turnContext, cancellationToken);
-
-            string apiResult = "I don't get it. :( Could you please reformulate ?";
-
-            switch (luisObservationTypeResult.TopIntent().intent)
-            {
-                case ObservationType.Intent.CoronalMassEjection:
-
-                    apiResult = await _donkiApi.GetCoronalMassEjection(apiKey, startDate, endDate);
-
-                    break;
-                case ObservationType.Intent.GeomagneticStorm:
-
-                    apiResult = await _donkiApi.GetGeomagneticStorm(apiKey, startDate, endDate);
-
-                    break;
-                case ObservationType.Intent.None:
-                    break;
-            }
-
-            return apiResult;
         }
     }
 }
