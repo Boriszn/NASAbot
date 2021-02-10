@@ -1,4 +1,4 @@
-![logo header](https://raw.githubusercontent.com/Boriszn/NASAbot/master/assets/NASAbot.jpg  "logo header")
+![logo header](/assets/header.jpeg "logo header")
 
 NASABot integrated with NASA API and LUIS (Language Recognition Service). It provides access to the latest NASA API (like Space Weather Database Of Notifications and other NASA services) using plain English and Natural User Flow.
 
