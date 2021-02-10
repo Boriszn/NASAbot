@@ -1,44 +1,43 @@
 ﻿using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.AI.Luis;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using NASABot.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System;
 
-namespace NASABot.Services 
+namespace NASABot.Services
 {
-    //todo: rename LanguageRecognitionService 
-    public class ObservationRecognizer : IRecognizer
+    public class LanguageRecognitionService : IRecognizer
     {
         private readonly LuisRecognizer _recognizer;
 
-        public ObservationRecognizer(IOptions<Luis> configuration)
+        public LanguageRecognitionService(IOptions<Luis> configuration)
         {
             var luisIsConfigured = !string.IsNullOrEmpty(configuration.Value.LuisAppId) 
                 && !string.IsNullOrEmpty(configuration.Value.LuisAPIKey)
                 && !string.IsNullOrEmpty(configuration.Value.LuisAPIHostName);
+
             if (luisIsConfigured)
             {
-                var luisApplication = new LuisApplication(
-                    configuration.Value.LuisAppId,
-                    configuration.Value.LuisAPIKey,
-                    "https://" + configuration.Value.LuisAPIHostName);
-                // Set the recognizer options depending on which endpoint version you want to use.
-                // More details can be found in https://docs.microsoft.com/en-gb/azure/cognitive-services/luis/luis-migration-api-v3
-                var recognizerOptions = new LuisRecognizerOptionsV3(luisApplication)
-                {
-                    PredictionOptions = new Microsoft.Bot.Builder.AI.LuisV3.LuisPredictionOptions
-                    {
-                        IncludeInstanceData = true,
-                    }
-                };
-
-                _recognizer = new LuisRecognizer(recognizerOptions);
+                throw new InvalidOperationException("Missing LUIS configuration values");
             }
+
+            var luisApplication = new LuisApplication(
+                configuration.Value.LuisAppId,
+                configuration.Value.LuisAPIKey,
+                "https://" + configuration.Value.LuisAPIHostName);
+            
+            var recognizerOptions = new LuisRecognizerOptionsV3(luisApplication)
+            {
+                PredictionOptions = new Microsoft.Bot.Builder.AI.LuisV3.LuisPredictionOptions
+                {
+                    IncludeInstanceData = true,
+                }
+            };
+
+            _recognizer = new LuisRecognizer(recognizerOptions);
+            
         }
 
         // Returns true if luis is configured in the appsettings.json and initialized.

@@ -23,7 +23,7 @@ namespace NASABot.Services
 
         public async Task<string> GetObservarionText(string apiKey, DateTime startDate, DateTime endDate, ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            var observationRecognizer = new ObservationRecognizer(_luisConfig);
+            var observationRecognizer = new LanguageRecognitionService(_luisConfig);
 
             var luisObservationTypeResult = await observationRecognizer.RecognizeAsync<ObservationType>(turnContext, cancellationToken);
 
